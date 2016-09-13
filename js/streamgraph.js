@@ -113,14 +113,21 @@ var svg = d3.select("#stream").append("svg")
     chart.attr('transform', 'translate(' + d3.event.translate + ')scale(' + d3.event.scale + ')');
   }
 
-var ultimoAFazer = "tipo";
-document.getElementById("aFazeres").onclick = function() {
-    var aFazeres = document.getElementById("aFazeres");
+var ultimoAFazer = "";
+var ultimoIgnorarRequerimento;
 
-    if(aFazeres.options[aFazeres.selectedIndex].value != ultimoAFazer){
+refazStream = function() {https://wwws.cloud.lsd.ufcg.edu.br:44142/ementas/contagem?count_by=situacao&apenas_legislacao=true
+    var aFazeres = document.getElementById("aFazeres");
+    var ignorarRequerimentos = document.getElementById("ignorarRequerimentos").checked;
+
+    if(aFazeres.options[aFazeres.selectedIndex].value != ultimoAFazer || ignorarRequerimentos != ultimoIgnorarRequerimento){
+      ultimoIgnorarRequerimento = ignorarRequerimentos;
       ultimoAFazer = aFazeres.options[aFazeres.selectedIndex].value;
       d3.select("#g-chart").selectAll("*").remove();
-      createGraph("https://wwws.cloud.lsd.ufcg.edu.br:44142/ementas/contagem?count_by="+aFazeres.options[aFazeres.selectedIndex].value);
+
+        //criar filtro
+      createGraph("https://wwws-cloud.lsd.ufcg.edu.br:44142/ementas/contagem?count_by="+aFazeres.options[aFazeres.selectedIndex].value +"&apenas_legislacao="+ignorarRequerimentos);
+
     }
 };
 
@@ -220,5 +227,5 @@ function createGraph(request){
 
   });
   }
-  createGraph("https://wwws.cloud.lsd.ufcg.edu.br:44142/ementas/contagem?count_by=tipo");
+  refazStream();
 }

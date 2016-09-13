@@ -1,10 +1,14 @@
 <meta charset="utf-8">
 <body>
-<select id="aFazeres">
-    <option value="tipo">Tipo</option>
-    <option value="tema">Tema</option>
-    <option value="situacao">Situação</option>
-</select>
+<form class="form-inline well" >
+	<select id="aFazeres" onclick="refazStream()">
+	    <option value="tipo">Tipo</option>
+	    <option value="tema">Tema</option>
+	    <option value="situacao">Situação</option>
+	</select>
+<input type="checkbox" name="ignorarRequerimentos" id="ignorarRequerimentos" onclick="refazStream()"> Ignorar requerimentos
+</form>
+
 <div id="stream">
 </div>
 <script src="{{ "/js/d3.v3.min.js" | prepend: site.baseurl }}"></script>
