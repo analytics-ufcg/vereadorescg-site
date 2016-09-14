@@ -40,7 +40,8 @@ clusterchart = function(){
 		MinMaxTotal = 0,
 		margin = {top:20},
 		totalCount = 0,
-		colorMap = {};
+		colorMap = {},
+		tip;
 
 	var custLayout = custumPieLayout()
 						.sort(null)
@@ -93,9 +94,22 @@ clusterchart = function(){
 							ParentG = container.append('g').attr('class','parentG')
 												.attr('transform','translate('+(data.length > eleInRow?0.5*circleR:0)+','+margin.top+')');
 							LegendG = container.append('g').attr('class','legendG');
+
+							tip = d3.tip()
+							  .attr('class', 'd3-tip')
+							  .offset([-10, 0]).html(function(d) {
+							    if (d.nome === undefined){
+									return d.data.count_by+": " + d.data.n;
+							    }else{
+									return "<strong>Nome: </strong>" + d.nome + "</br>"+"Total de ementas: " + d.total;
+							    }
+								});
+
 						}
 
-						LegendG.attr('transform','translate('+(width+50)+','+((circleR*eleInRow/2)-(Object.keys(colorMap).length*20)/2)+')')
+						ParentG.call(tip);
+
+						LegendG.attr('transform','translate('+(width+50)+','+0+')')
 								.datum(colorMap)
 								.call(legendObj);
 
@@ -150,16 +164,13 @@ clusterchart = function(){
 							.attr('r',0)
 							.attr('cx',circleR/2)
 							.attr('cy',circleR/2)
-							.on('mouseover',function(d){
-								d3.select(this).style('stroke-width','2px')
-							})
-							.on('mouseout',function(d){
-								d3.select(this).style('stroke-width','1px')
-							})
+							.on('mouseover',tip.show)
+							.on('mouseout',tip.hide)
 							.on('click',function(d){
 								d3.select(this).style('stroke-width','1px')
-								if(originalData.length == 1)
+								if(originalData.length == 1){
 									d3.select('#'+containerID).select('svg').datum(originalData2).call(chart);
+								}
 								else{
 									originalData2 = originalData;
 									d3.select('#'+containerID).select('svg').datum([d]).call(chart);
@@ -203,7 +214,6 @@ clusterchart = function(){
 				scale_temp
 						.domain(d3.extent(data.values,function(d){return d.n;}))
 						.range([parseInt(radiusScale(data.total[0])*0.2),parseInt(radiusScale(data.total[0]))*(originalData.length==1?0.8:0.2)]);
-
 				arc.outerRadius(function (d) {
 				    return scale_temp(d.value);
 				});
@@ -240,7 +250,9 @@ clusterchart = function(){
 								}
 				    })
 				    .each(function(d) { this._current = d;
-				    					d.parentData = data; });
+				    					d.parentData = data; })
+				    .on('mouseover',tip.show)
+					.on('mouseout',tip.hide);
 
 				paths.exit().transition().duration(1000).remove();
 
@@ -416,7 +428,7 @@ custumPieLayout = function(){
                 g_txt.enter()
                     .append('text');
 
-                g_txt.text(function(d){return data[d].key.substring(0,10)})
+                g_txt.text(function(d){return data[d].key})
                     .attr('font-size','18px')
                     .transition()
                     .duration(1000)
