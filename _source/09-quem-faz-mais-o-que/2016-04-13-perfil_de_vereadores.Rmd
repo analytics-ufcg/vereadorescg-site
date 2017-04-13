@@ -8,7 +8,7 @@ tags: [categorias, atividade]
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, screenshot.force = FALSE)
 ```
 
 # Perfis de vereadores
