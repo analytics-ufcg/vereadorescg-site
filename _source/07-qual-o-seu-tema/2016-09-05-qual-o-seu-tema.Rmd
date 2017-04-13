@@ -31,8 +31,9 @@ contagem = get_sumario_no_tempo(camara_db, "main_theme", apenas_legislacao = TRU
 
 ```{r}
 contagem %>%
-  filter(ymd(time) <= ymd(20140101), main_theme != "administração") %>%
-  streamgraph("main_theme", "count", "time", ) %>%
+  #filter(ymd(time) < ymd(20150101), ymd(time) >= ymd(20140101), main_theme != "administração") %>%
+  filter(main_theme != "administração") %>%
+  streamgraph(key = "main_theme", value = "count", date = "time", offset = "expand") %>%
   sg_fill_brewer("PuOr") %>%
   sg_legend(show = TRUE, label = "gênero: ")
 

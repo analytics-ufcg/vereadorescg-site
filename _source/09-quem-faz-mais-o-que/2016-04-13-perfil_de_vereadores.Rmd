@@ -234,15 +234,13 @@ for (i in order(selection[,12])){
 
 # Ranking de vereadores 
 
-## Principais categorias
-
 Consideramos 4 categorias como as principais de investimento na cidade, são elas: **Saúde**, **Segurança e Meio Amb.**, **Educaçào e Cultura** e **Mobilidade**. Selecionamos o 3 primeiros vereadores que mais tiveram propostas aprovadas em cada uma dessas categorias.
 
 * O vereador **Alexandre do Sindicato** está presente entre os primeiros colocados nas quatro categorias, onde ficou em primeiro lugar em três delas.
 * O vereador **Bruno Cunha Lima** também ganha destaque por estar presente entre os três primeiros em três das quatro categorias.
 * Todos os outros vereadores presentes entre os três primeiros de cada categoria só aparecem em uma delas e nenhum deles ocupa o primeiro lugar.
 
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', out.extra=''}
+```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', out.extra='', screenshot.force = FALSE}
 maiores.saude = atos.tema.legislativo[
   with(atos.tema.legislativo, order(`Saúde`, decreasing = TRUE)[1:3]), c("Vereador",  "Saúde")] %>% cbind2(data.frame("tipo"=c("Saúde")))
 
@@ -282,13 +280,13 @@ cat("</div>")
 
 Além de selecionar vereadores que mais tiveram propostas aprovadas em categorias consideradas muito importantes, também observamos aqueles que lançaram muitas propostas em categorias de, aparentemente, pouca importância. Entre os tipos de propostas existentes, selecionamos: **Nomeação de ruas**, **Concessão de títulos** e **Concessão de medalhas**. Assim como nos rankings anteriores, são selecionados os 3 primeiros vereadores que mais tiveram propostas aprovadas que se encaixam nesse tipo.
 
-* Os vereadores presentes entre os primeiros colocados nessas categorias pertencem as três diferentes cassificações de atividade.
+* Os vereadores presentes entre os primeiros colocados nessas categorias pertencem as três diferentes classificações de atividade.
 
 * O vereador que mais se destaca é **Pimentel Filho**. Ele foi classificado como um vereador muito ativo, porém está em primeiro lugar em todas as categorias "menos importantes", chegando a ter 96 propostas aprovadas apenas de nomeação de ruas.
 
 * O vereador **Napoleão Maracajá** também aparece em dois dos gráficos.
 
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', out.extra=''}
+```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', out.extra='', screenshot.force = FALSE}
 atos.denomina.legislativo = epv %>%
   subset(tipo_ato == "Legislativo" & grepl("DENOMINA DE.*RUA|NOMEIA|DÁ NOME|DÁ O NOME|CONCEDE MEDALHA|TÍTULO DE CID", title)) %>%
   mutate(nome_urna_candidato = sapply(nome_urna_candidato, simpleCap)) %>%
