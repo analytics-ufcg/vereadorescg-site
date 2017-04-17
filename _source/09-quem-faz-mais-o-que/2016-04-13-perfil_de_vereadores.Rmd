@@ -8,10 +8,8 @@ tags: [categorias, atividade]
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, screenshot.force = FALSE)
+knitr::opts_chunk$set(echo = TRUE, screenshot.force = FALSE, dpi = 200)
 ```
-
-# Perfis de vereadores
 
 ```{r, echo=FALSE, include=FALSE}
 library(knitr)
@@ -23,18 +21,9 @@ setwd(current_dir)
 
 ementas = get_ementas_all(start_camara_db())
 
-# library(ggiraph)
-# library(ggplot2)
-# library(ggiraphExtra)
-# #source("ggRadar2.R")
-
-# library(grid)
-# library(gridExtra)
-# library(ggradar)
-
 library(fmsb)
 # precisamos da 
-# devtools::install_github("jbkunst/highcharter")
+# devtools::install_github("jbkunst/highcharter") # precisamos da 0.5!
 library(highcharter)
 library(NMFN)
 
@@ -44,12 +33,12 @@ library(plotly, warn.conflicts = F)
 
 ```{r, fig.height=3, fig.width=10, echo=FALSE, warning=FALSE, message=FALSE}
 simpleCap <- function(x) {
-    s <- strsplit(x, " ")[[1]]
-    paste(toupper(substring(s, 1, 1)),
-          tolower(substring(s, 2)),
-          sep = "",
-          collapse = " ")
-  }
+  s <- strsplit(x, " ")[[1]]
+  paste(toupper(substring(s, 1, 1)),
+        tolower(substring(s, 2)),
+        sep = "",
+        collapse = " ")
+}
 
 get_vereadores_para_ui = function(db) {
   vereadores = get_vereadores(db) %>%
@@ -79,7 +68,8 @@ epv = epv %>% filter(proponents != "Romero Rodrigues Veiga")
 
 ```{r echo=FALSE, warning=FALSE, message=FALSE}
 atos.tema.legislativo = epv %>% 
-  subset(tipo_ato == "Legislativo" & !grepl("DENOMINA DE.*RUA|CONCEDE MEDALHA|TÍTULO DE CID", title)) %>%
+  subset(tipo_ato == "Legislativo" & 
+           !grepl("DENOMINA DE.*RUA|CONCEDE MEDALHA|TÍTULO DE CID", title)) %>%
   mutate(nome_urna_candidato = sapply(nome_urna_candidato, simpleCap)) %>% 
   left_join(select(vereadores, nome_urna_candidato),
             by = c("nome_urna_candidato")) %>% 
@@ -104,13 +94,15 @@ atos.legis.relativo = cbind(Vereador = atos.tema.legislativo$Vereador, atos.legi
 atos.legis.relativo=rbind(rep(1,11) , rep(0,11), atos.legis.relativo)
 ```
 
-Durante os 4 anos em que estiveram no cargo, os vereadores puderam enviar propostas para aprovação que são classificadas em diferentes categorias dependendo de seus objetivos. Existe um total de 10 categorias e abaixo estaremos traçando o perfil dos vereadores baseado-se nas propostas aprovadas pelos mesmos.
+Durante os 4 anos em que os vereadores da legislatura 2013-2016 estiveram no cargo, eles puderam enviar propostas para aprovação em diferentes assuntos, como segurança, saúde e mobilidade. Após analisar as propostas apresentadas neste período, nós definimos 10 temas para classificá-las. Partindo desses dez temas, nesta análise queremos agora traçar o perfil dos vereadores: em que temas cada vereador mais atuou? A atuação de cada vereador foi focada em um tema, ou eles atuam em temas diversos?
 
-São levadas em conta as propostas legislativas aprovadas, excluindo aquelas referentes a nomeação, entrega de medalhas e títulos. Os gráficos mostram como ficaram distribuídas essas propostas para cada vereador, mostrando as categorias que apresentaram mais atividades, assim como aquelas que não foram trabalhadas.
+Para contabilizar as propostas relevantes, são levadas em conta as propostas legislativas aprovadas, excluindo aquelas referentes a nomeação de ruas e praças, entrega de medalhas e títulos. 
 
-### Como interpretar os gráficos
+# O perfil em uma figura
 
-Logo abaixo temos três exemplos de como podemos interpretar os gráficos de perfis. O número ao lado do nome de cada vereador representa a quantidade de propostas aprovadas.
+Dadas as propostas relevantes aprovadas, usamos um _gráfico de perfil_ para descrever cada vereador. Esse gráfico mostra quantos por cento das propostas do vereador foram em cada um dos dez temas possíveis. 
+
+Como o gráfico pode ser novo para alguns, antes de examinar os vereadores mostramos abaixo três exemplos de perfis. Repare que junto com o nome do vereador colocamos também a quantidade de propostas aprovadas.
 
 ```{r, fig.height=3, fig.width=10, echo=FALSE, warning=FALSE, message=FALSE}
 
@@ -128,16 +120,22 @@ exemplo = c("Vereador 1\n0 propostas", "Vereador 2\n15 propostas", "Vereador 3\n
 for(i in 3:5){
   radarchart(tutorial.chart[c(1,2,i,6),], axistype=1,
              pcol=colors_border , pfcol=colors_in, plwd=1, pty=c(16,32), plty=1,
-             axislabcol="grey" , caxislabels=seq(0,100,25), cglcol = "grey80", cglty=1, cglwd=0.8, title = exemplo[i-2] , vlcex=0.8 )
+             axislabcol="grey" , caxislabels=seq(0,100,25), cglcol = "grey80", cglty=1, 
+             cglwd=0.8, title = exemplo[i-2] , vlcex=.9 )
 }
 ```
 
-* O primeiro exemplo ilustra a situação em que o Vereador 1 não teve propostas aprovadas em nenhuma das categorias. Repare que todos os pontos se concentram no marco zero e há o número zero ao lado do nome.
-* O segundo exemplo ilustra a situação em que o Vereador 2 teve 15 propostas aprovadas e todas elas em apenas uma área. Repare que o ponto da categoria Gestão e Finanças atinge o valor 100% no gráfico, enquanto todos os outros permanecem no marco zero.
-* O terceiro exemplo ilustra a situação em que o Vereador 3 teve 68 propostas aprovadas em diferentes categorias. Podemos notar no exemplo que 50% foram em Educação e Cultura, 25% em Administração, os outros 25% restantes em Obras e Infr. Física e os pontos das demais categorias se encontram no marco zero.
+* No primeiro exemplo, o Vereador 1 não teve propostas aprovadas em nenhum tema. Repare que todos os pontos se concentram no marco zero e há o número zero junto do nome.
+* O segundo exemplo ilustra a situação em que o Vereador 2 teve 15 propostas aprovadas e todas elas em apenas um tema. O ponto da categoria Gestão e Finanças atinge o valor 100% no gráfico, enquanto todos os outros permanecem no marco zero.
+* O terceiro exemplo ilustra a situação em que o Vereador 3 teve 68 propostas aprovadas em diferentes categorias. Podemos notar no exemplo que 50% foram em Educação e Cultura, 25% em Administração, os outros 25% restantes em Obras e Infr. Física. Os pontos das demais categorias se encontram no marco zero.
+
+# Os perfis
+
+Craque na interpretação do formato do perfil? Vamos então aos perfis dos vereadores que passaram pela câmara entre 2013 e 2016. Abaixo estão os perfis de todos os vereadores, eleitos e suplentes, e os dividimos em 3 grupos para facilitar as comparações. Há três vereadores de **atividade alta** que aprovaram 80 ou mais proposições. Em seguida, o grupo de **atividade média** teve de 35 a 80 propostas aprovadas. Os demais vereadores estão agrupados na categoria de **atividade baixa**.
 
 ### Atividade alta
 
+Alexandre do Sindicato, Bruno Cunha Lima e Pimentel Filho tiveram uma quantidade de proposições aprovadas consideravelmente maior que os demais vereadores. Todos os três concentraram sua atuação em proposições administrativas, em diferentes medidas. Quase três quartos das propostas de Pimentel foram deste tipo, e a segunda categoria em que ele mais atuou foi Gestão e Finanças. 
 ```{r, fig.height=3, fig.width=10, echo=FALSE, warning=FALSE, message=FALSE}
 
 distance2 = function(x1, allRows){
@@ -165,18 +163,20 @@ for (i in order(selection[,12])){
 
     radarchart(atual.vereador, axistype=1,
                pcol=colors_border , pfcol=colors_in, plwd=1, pty=c(16,32), plty=1,
-                axislabcol="grey" , caxislabels=seq(0,100,25), cglcol = "grey80", cglty=1, cglwd=0.8,
-                title = paste(selection[i,1], atividade.vereador[selection[i,1],2], sep = ": "), vlcex=0.8 )
+               axislabcol="grey" , caxislabels=seq(0,100,25), cglcol = "grey80", cglty=1, 
+               cglwd=0.8,
+               title = paste0(selection[i,1], "\n",
+                             atividade.vereador[selection[i,1],2], " propostas"), 
+               vlcex=0.9 )
 }
-```
+    ```
 
-* Os três vereadores acima foram os que acumularam um maior número de propostas legislativas aprovadas (desconsiderando nomes, medalhas e títulos), com valores **acima de 80**.
+Dos três vereadores mais produtivos em número de propostas aprovadas, Bruno Cunha Lima foi quem mais distribuiu e balanceou suas propostas entre diferentes temas.
 
-* Bruno Cunha Lima conseguiu distribuir e balancear melhor suas propostas entre as categorias existentes.
-
-* Por outro lado, Pimentel Filho concentrou a maior parte de suas propostas aprovadas na categoria Administração, representando quase 75% do total.
 
 ### Atividade média
+
+Os vereadores de atividade média têm em geral atuação em mais áreas. Todos tiveram propostas aprovadas em pelo menos cinco temas diferentes. Ainda há aqueles com bem mais propostas administrativas que nos demais temas: Marinaldo Cardoso, Inácio Falcão e Lula Cabral tiveram a maior parte de suas propostas na área administrativa. Para os demais, é comum que os temas onde há mais propostas incluam Educação e Cultura e/ou Gestão e Finanças.
 
 ```{r, fig.height=3, fig.width=10, echo=FALSE, warning=FALSE, message=FALSE}
 colors_border=c(rgb(0.7,0.5,0.1,0.9) , rgb(0.7,0.5,0.1,0.9))
@@ -193,19 +193,24 @@ for (i in order(selection[,12])){
 
     radarchart(atual.vereador, axistype=1,
                pcol=colors_border , pfcol=colors_in, plwd=1, pty=c(16,32), plty=1,
-                axislabcol="grey" , caxislabels=seq(0,100,25), cglcol = "grey80", cglty=1, cglwd=0.8,
-                title = paste(selection[i,1], atividade.vereador[selection[i,1],2], sep = ": "), vlcex=0.8 )
+               axislabcol="grey" , caxislabels=seq(0,100,25), cglcol = "grey80", cglty=1, 
+               cglwd=0.8,
+               title = paste0(selection[i,1], 
+                              "\n",
+                              atividade.vereador[selection[i,1],2], 
+                              " propostas"), 
+               vlcex=0.9 )
 
 }
 ```
 
-* Todos os vereadores com registro de atividades consideradas medianas atuaram em pelo menos 5 áreas diferentes, cada um somou uma quantidade de **35 a 80** propostas aprovadas 
-
-* A maioria deles tiveram uma concentração de propostas na categoria **Administração**.
-
-* Apenas 3 deles não tiveram um destaque maior na categoria Administração, que foram: **Joia Germano** (Assistência Social), **Murilo Galdino** (Gestão e Finanças) e **Vaninho Aragão** (Educação e Cultura).
+Há também exceções a esta regra. Joia Germano concentrou suas propostas em Assistência Social. Napoleão Maracajá, Metuselá Agra, e Murilo Galdino dividiram sua atuação entre temas diversos, incluindo Mobilidade, Saúde e Segurança. Vaninho Aragão atuou principalmente na Educação e Cultura.
 
 ### Atividade baixa
+
+Entre os vereadores com menos propostas aprovadas, é menos comum que a atuação seja concentrada em propostas administrativas ou de Gestão e Finanças. 
+
+Miguel da Construção, Pastor Josimar, Rostand Paraíba, e Tia Mila focaram as suas propostas em Segurança, Saúde, Assistência Social e Educação e Cultura. Anderson Maia, Lafite, Sgt Regis, Aldo Cabral e Galego do Leite por sua vez tiveram propostas aprovadas em muitas áreas. Destes, Anderson Maia parece ser o vereador que mais distribuiu suas propostas entre os vários temas que consideramos.
 
 ```{r, fig.height=3, fig.width=10, echo=FALSE, warning=FALSE, message=FALSE}
 colors_border=c(rgb(165/255,15/255,21/255,0.9) , rgb(165/255,15/255,21/255,0.9))
@@ -228,17 +233,8 @@ for (i in order(selection[,12])){
 }
 ```
 
-* Vereadores com registro de atividades consideradas baixas acumularam um total de propostas com valores **inferiores a 35**.
-
-* 3 vereadores tiveram 100% ou quase 100% de todas suas propostas aprovadas voltadas para apenas uma categoria: **Alcindor Villarim** (Saúde), **Lourdes Costa** (Administração) e **Rodolfo Rodrigues** (Administração).
-
-# Ranking de vereadores 
-
-Consideramos 4 categorias como as principais de investimento na cidade, são elas: **Saúde**, **Segurança e Meio Amb.**, **Educaçào e Cultura** e **Mobilidade**. Selecionamos o 3 primeiros vereadores que mais tiveram propostas aprovadas em cada uma dessas categorias.
-
-* O vereador **Alexandre do Sindicato** está presente entre os primeiros colocados nas quatro categorias, onde ficou em primeiro lugar em três delas.
-* O vereador **Bruno Cunha Lima** também ganha destaque por estar presente entre os três primeiros em três das quatro categorias.
-* Todos os outros vereadores presentes entre os três primeiros de cada categoria só aparecem em uma delas e nenhum deles ocupa o primeiro lugar.
+# Em número de propostas
+Em uma análise complementar, verificamos também quem são os vereadores mais atuantes nas principais áreas de investimento na cidade: **Saúde**, **Segurança e Meio Amb.**, **Educaçào e Cultura** e **Mobilidade**. Abaixo mostramos os rankings dos 3 vereadores que mais tiveram propostas aprovadas em cada uma desses temas:
 
 ```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', out.extra='', screenshot.force = FALSE}
 maiores.saude = atos.tema.legislativo[
@@ -276,15 +272,12 @@ cat("</div>")
 cat("</div>")
 ```
 
-## Outras categorias
+O vereador **Alexandre do Sindicato** está presente entre os três primeiros colocados nas quatro categorias, e ficou em primeiro lugar em três delas. O vereador **Bruno Cunha Lima** também ganha destaque por estar presente entre os três primeiros em três das quatro categorias. Todos os outros vereadores presentes entre os três primeiros de cada categoria só aparecem em uma delas e nenhum deles ocupa o primeiro lugar.
 
+## Nomes de rua, medalhas e títulos de cidadão
 Além de selecionar vereadores que mais tiveram propostas aprovadas em categorias consideradas muito importantes, também observamos aqueles que lançaram muitas propostas em categorias de, aparentemente, pouca importância. Entre os tipos de propostas existentes, selecionamos: **Nomeação de ruas**, **Concessão de títulos** e **Concessão de medalhas**. Assim como nos rankings anteriores, são selecionados os 3 primeiros vereadores que mais tiveram propostas aprovadas que se encaixam nesse tipo.
 
-* Os vereadores presentes entre os primeiros colocados nessas categorias pertencem as três diferentes classificações de atividade.
-
-* O vereador que mais se destaca é **Pimentel Filho**. Ele foi classificado como um vereador muito ativo, porém está em primeiro lugar em todas as categorias "menos importantes", chegando a ter 96 propostas aprovadas apenas de nomeação de ruas.
-
-* O vereador **Napoleão Maracajá** também aparece em dois dos gráficos.
+Interessante que temos vereadores de alta, média e baixa atividade entre os primeiros colocados nessas categorias. Além disso, o vereador que mais se destaca é **Pimentel Filho**. Ele está em primeiro lugar em todas as categorias "menos importantes", chegando a ter 96 propostas aprovadas apenas de nomeação de ruas. **Napoleão Maracajá** também aparece em dois dos gráficos.
 
 ```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', out.extra='', screenshot.force = FALSE}
 atos.denomina.legislativo = epv %>%
