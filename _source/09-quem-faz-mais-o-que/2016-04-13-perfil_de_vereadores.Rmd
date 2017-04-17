@@ -227,9 +227,12 @@ for (i in order(selection[,12])){
 
     radarchart(atual.vereador, axistype=1,
                pcol=colors_border , pfcol=colors_in, plwd=1, pty=c(16,32), plty=1,
-                axislabcol="grey" , caxislabels=seq(0,100,25), cglcol = "grey80", cglty=1, cglwd=0.8,
-                title = paste(selection[i,1], atividade.vereador[selection[i,1],2], sep = ": "), vlcex=0.8 )
-
+               axislabcol="grey" , caxislabels=seq(0,100,25), cglcol = "grey80", cglty=1, 
+               cglwd=0.8,
+               title = paste0(selection[i,1], "\n", 
+                             atividade.vereador[selection[i,1],2], " propostas"), 
+               vlcex=0.9)
+    
 }
 ```
 
